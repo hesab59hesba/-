@@ -1,0 +1,4 @@
+Terminal,Command
+PowerShell,.\venv\Scripts\Activate.ps1
+Command Prompt (cmd),.\venv\Scripts\activate.bat
+Git Bash / WSL,source venv/bin/activate
