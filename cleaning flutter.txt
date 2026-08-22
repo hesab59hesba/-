@@ -1,0 +1,10 @@
+cd C:\dev\flutter
+git checkout stable
+git pull
+git clean -xfd
+
+C:\dev\flutter\bin\flutter.bat doctor
+
+org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=1g -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+
+in android\gradle.properties
