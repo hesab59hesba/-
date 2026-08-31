@@ -1,0 +1,94 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "agnes": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Agnes AI",
+      "options": {
+        "apiKey": "sk-KZ0u4bPWfAuBjwaDe8s71Vw6gbCU7lGsLiY8gwKErk99xAdz",
+        "baseURL": "https://apihub.agnes-ai.com/v1"
+      },
+      "models": {
+        "agnes-2.5-flash": {
+          "name": "Agnes 2.5 Flash",
+          "limit": { "context": 262144, "output": 65536 }
+        }
+      }
+    },
+    "sambanova": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "SambaNova",
+      "options": {
+        "apiKey": "ce5f4407-0424-4734-bbad-6e8807649f40",
+        "baseURL": "https://api.sambanova.ai/v1/"
+      },
+      "models": {
+        "DeepSeek-V3.1": {
+          "name": "DeepSeek V3.1",
+          "limit": { "context": 131072, "output": 7168 },
+          "cost": { "input": 3.00, "output": 4.50 }
+        },
+        "DeepSeek-V3.2": {
+          "name": "DeepSeek V3.2",
+          "limit": { "context": 32768, "output": 7168 },
+          "cost": { "input": 3.00, "output": 4.50 }
+        },
+        "Meta-Llama-3.3-70B-Instruct": {
+          "name": "Llama 3.3 70B",
+          "limit": { "context": 131072, "output": 3072 },
+          "cost": { "input": 0.60, "output": 1.20 }
+        },
+        "MiniMax-M2.7": {
+          "name": "MiniMax M2.7",
+          "limit": { "context": 196608, "output": 196608 },
+          "cost": { "input": 0.60, "output": 2.40 }
+        },
+        "gemma-4-31B-it": {
+          "name": "Gemma 4 31B IT",
+          "limit": { "context": 131072, "output": 131072 },
+          "cost": { "input": 0.38, "output": 1.15 }
+        },
+        "gpt-oss-120b": {
+          "name": "GPT-OSS 120B",
+          "limit": { "context": 131072, "output": 131072 },
+          "cost": { "input": 0.22, "output": 0.59 }
+        }
+      }
+    },
+    "NaraRouter": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "NaraRouter",
+      "options": {
+        "baseURL": "https://router.bynara.id/v1",
+        "apiKey": "sk-nry-V2RwDwWHFLx8m-lzVGbnFP6O5zCsCzKjZWNPCfUKSqA"
+      },
+      "models": {
+        "claude-opus-4.8-bynara": {
+          "name": "Claude Opus 4.8 byNara",
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "glm-5.3-flash-free": {
+          "name": "GLM 5.3 Flash Free"
+        }
+      }
+    }
+  },
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "figma": {
+      "type": "remote",
+      "url": "https://mcp.figma.com/mcp"
+    },
+    "lottiefiles-creator": {
+      "type": "local",
+      "command": ["npx", "-y", "@lottiefiles/creator-mcp@latest"],
+      "timeout": 300000
+    }
+  }
+}
