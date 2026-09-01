@@ -1,0 +1,1331 @@
+Converting Plain HTML/CSS/JS Mobile Web Apps to Flutter
+
+Comprehensive Guide for Converting Static Web Apps to Flutter (AI Agent Methodology)
+
+This guide is designed to help AI Agents efficiently convert plain HTML/CSS/JavaScript mobile web applications into robust Flutter mobile applications while preserving functionality, design patterns, and user experience.
+
+---
+
+PHASE 1: ANALYSIS & DISCOVERY (Analysis Phase)
+
+Before writing any Flutter code, the agent must thoroughly understand the existing HTML/CSS/JS project structure:
+
+1.1 HTML Structure Analysis (DOM Analysis)
+- Examine the main HTML file (index.html) to identify page sections and components
+- Map all HTML pages/views (if multiple pages exist) and identify single-page vs multi-page architecture
+- Identify semantic HTML elements (header, nav, main, footer, section, article)
+- Catalog all forms and input elements (text, email, password, checkbox, radio, select, textarea)
+- Extract all interactive elements (buttons, links, dropdowns, modals, tabs, accordions)
+- Identify any iframes, embeds, or external content references
+- Note any accessibility features (ARIA labels, semantic tags, role attributes)
+
+1.2 CSS Analysis (Styling & Layout)
+- Examine CSS files (inline, internal, external stylesheets) and CSS frameworks (Bootstrap, Tailwind, custom)
+- Extract color palette: primary, secondary, accent, background, text, borders
+- Identify typography: font families, sizes, weights, line-heights
+- Document spacing system: margins, padding, gaps (if using modern CSS Grid/Flexbox)
+- Catalog all breakpoints and media queries for responsive design
+- Identify animations, transitions, and visual effects
+- Document box-shadows, border-radius, gradients, and other visual treatments
+- Extract icon sets (Font Awesome, Material Icons, SVGs, image sprites)
+- Document component styling patterns (Cards, Badges, Buttons, Input fields, etc.)
+
+1.3 JavaScript Functionality Analysis (Behavior & Logic)
+- Identify the main JavaScript entry point(s) and overall architecture
+- Catalog all event listeners and user interactions (click, submit, change, scroll, etc.)
+- Extract data flow: how data is fetched, stored, and updated
+- Identify data sources: hardcoded data, API calls (XMLHttpRequest, Fetch API), local storage
+- Map all functions and their purposes (data processing, UI updates, validation, formatting)
+- Identify state management patterns (global variables, module pattern, simple closures)
+- Document any external JavaScript libraries (jQuery, Axios, Chart.js, etc.)
+- Identify form validation logic and rules
+- Extract any business logic (calculations, filtering, sorting, searching)
+- Note any error handling mechanisms
+
+1.4 User Flow & Navigation Analysis
+- Create a sitemap/flow diagram showing all pages/views and how users navigate
+- Identify persistent UI elements (header, footer, navigation bars)
+- Document modal dialogs and overlays
+- Identify deeplinks or query parameters used for routing
+- Note any redirect logic or conditional page flow
+- Document loading states, error states, and empty states
+
+1.5 Data & API Analysis
+- Identify all API endpoints being called (method, URL, headers, request/response format)
+- Extract request payload examples and response structure
+- Document authentication requirements (if any)
+- Identify data transformation logic
+- Note any data validation or error handling from API
+- Document any local storage usage (localStorage, sessionStorage)
+
+---
+
+PHASE 2: PROJECT SETUP (Setup Phase)
+
+2.1 Initialize Flutter Project
+```bash
+flutter create --org com.yourdomain app_name
+cd app_name
+```
+
+Key considerations:
+- Use meaningful package name matching your domain (reverse domain notation)
+- Organization typically follows company/personal domain pattern
+- App name should be kebab-case for CLI, but displayed name will be formatted
+
+2.2 Project Structure Setup
+Create the following directory structure inside lib/:
+
+```
+lib/
+├── main.dart                          # Entry point
+├── config/
+│   ├── theme.dart                     # Colors, typography, themes
+│   ├── constants.dart                 # App-wide constants
+│   └── routes.dart                    # Navigation configuration
+├── models/
+│   ├── user_model.dart                # Data models matching HTML forms/API data
+│   ├── product_model.dart
+│   └── ...
+├── providers/                          # State management (if using Provider)
+│   ├── app_provider.dart
+│   ├── data_provider.dart
+│   └── auth_provider.dart
+├── services/
+│   ├── api_service.dart               # API communication
+│   ├── local_storage_service.dart     # LocalStorage equivalent
+│   └── validation_service.dart        # Form validation logic
+├── screens/
+│   ├── home_screen.dart               # Full page screens
+│   ├── details_screen.dart
+│   ├── form_screen.dart
+│   └── ...
+├── widgets/
+│   ├── common/
+│   │   ├── app_button.dart            # Reusable components
+│   │   ├── app_card.dart
+│   │   ├── app_input_field.dart
+│   │   └── ...
+│   └── custom/
+│       ├── hero_section.dart
+│       └── ...
+└── utils/
+    ├── logger.dart
+    ├── helpers.dart
+    └── extensions.dart
+```
+
+2.3 Dependencies Management (pubspec.yaml)
+Add equivalent packages based on HTML/CSS/JS functionality:
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management (alternative to JavaScript variables/functions)
+  provider: ^6.0.0                    # For reactive data management
+  
+  # HTTP & Networking (replaces Fetch API/XMLHttpRequest)
+  dio: ^5.0.0                         # Better than http package, built-in interceptors
+  
+  # Local Storage (replaces localStorage/sessionStorage)
+  shared_preferences: ^2.0.0          # For simple key-value storage
+  hive: ^2.0.0                        # For complex local data (optional)
+  
+  # Navigation & Routing
+  go_router: ^8.0.0                   # Modern routing (better than Navigator 1.0)
+  
+  # Icons (replaces Font Awesome/Material Icons)
+  google_fonts: ^5.0.0                # Custom fonts from Google
+  icon_pack: ^0.0.0                   # Specific icon library if needed
+  
+  # Form & Validation
+  flutter_form_builder: ^9.0.0        # Advanced form handling
+  validators: ^0.0.1                  # Pre-built validation rules
+  
+  # Date/Time Formatting (replaces moment.js/date-fns)
+  intl: ^0.18.0                       # Internationalization and formatting
+  
+  # Image Loading & Caching
+  cached_network_image: ^3.2.0        # Efficient image loading
+  image_picker: ^0.8.0                # If user photo upload needed
+  
+  # HTTP Status & Error Handling
+  equatable: ^2.0.0                   # For model comparison
+  
+  # Charts & Data Visualization (if HTML has charts)
+  fl_chart: ^0.63.0                   # Beautiful charts
+  
+  # JSON Serialization
+  json_serializable: ^6.0.0
+  
+  # Testing
+  mocktail: ^1.0.0
+  flutter_test:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.0
+  json_serializable: ^6.0.0
+```
+
+2.4 Initial Configuration Files
+
+Create lib/config/constants.dart:
+```dart
+class AppConstants {
+  static const String apiBaseUrl = 'https://api.example.com';
+  static const int connectionTimeout = 30; // seconds
+  static const int receiveTimeout = 30; // seconds
+  
+  // Local storage keys
+  static const String storageKeyUser = 'user_data';
+  static const String storageKeyTheme = 'app_theme';
+}
+```
+
+Create lib/config/theme.dart:
+```dart
+import 'package:flutter/material.dart';
+
+class AppTheme {
+  // Colors extracted from CSS
+  static const Color primary = Color(0xFF6366F1);      // Indigo
+  static const Color secondary = Color(0xFF8B5CF6);    // Violet
+  static const Color accent = Color(0xFFF59E0B);       // Amber
+  static const Color background = Color(0xFFFAFAFA);
+  static const Color surfaceColor = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFF1F2937);
+  static const Color textSecondary = Color(0xFF6B7280);
+  static const Color borderColor = Color(0xFFE5E7EB);
+  static const Color errorColor = Color(0xFFEF4444);
+  static const Color successColor = Color(0xFF10B981);
+  
+  static ThemeData lightTheme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    colorScheme: ColorScheme.light(
+      primary: primary,
+      secondary: secondary,
+      surface: surfaceColor,
+      error: errorColor,
+    ),
+    typography: Typography.material2021(),
+    fontFamily: 'Inter', // From Google Fonts
+    textTheme: TextTheme(
+      displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      headlineSmall: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+      bodyLarge: TextStyle(fontSize: 16, color: textPrimary),
+      bodyMedium: TextStyle(fontSize: 14, color: textSecondary),
+    ),
+  );
+}
+```
+
+---
+
+PHASE 3: DATA MODELS & CORE LOGIC (Core Logic Phase)
+
+3.1 Convert Data Models
+Transform HTML form fields and API response structures into Dart classes:
+
+Example - From HTML form:
+```html
+<form id="userForm">
+  <input type="text" name="fullName" required>
+  <input type="email" name="email" required>
+  <input type="number" name="age">
+  <textarea name="bio"></textarea>
+</form>
+```
+
+To Dart model (lib/models/user_model.dart):
+```dart
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'user_model.g.dart';
+
+@JsonSerializable()
+class User extends Equatable {
+  final String id;
+  final String fullName;
+  final String email;
+  final int? age;
+  final String? bio;
+  final DateTime createdAt;
+
+  const User({
+    required this.id,
+    required this.fullName,
+    required this.email,
+    this.age,
+    this.bio,
+    required this.createdAt,
+  });
+
+  // For updating specific fields
+  User copyWith({
+    String? id,
+    String? fullName,
+    String? email,
+    int? age,
+    String? bio,
+    DateTime? createdAt,
+  }) {
+    return User(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
+      age: age ?? this.age,
+      bio: bio ?? this.bio,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+
+  @override
+  List<Object?> get props => [id, fullName, email, age, bio, createdAt];
+}
+```
+
+3.2 State Management Setup
+Create lib/providers/app_provider.dart:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:app_name/models/user_model.dart';
+import 'package:app_name/services/api_service.dart';
+
+class AppProvider extends ChangeNotifier {
+  // State variables (replaces JavaScript global state)
+  List<User> _users = [];
+  User? _currentUser;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  // Getters
+  List<User> get users => _users;
+  User? get currentUser => _currentUser;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  final ApiService _apiService = ApiService();
+
+  // Initialization
+  Future<void> init() async {
+    await fetchUsers();
+  }
+
+  // CRUD Operations
+  Future<void> fetchUsers() async {
+    _setLoading(true);
+    try {
+      _users = await _apiService.getUsers();
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> createUser(User user) async {
+    try {
+      final newUser = await _apiService.createUser(user);
+      _users.add(newUser);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString();
+    }
+  }
+
+  Future<void> updateUser(User user) async {
+    try {
+      await _apiService.updateUser(user);
+      final index = _users.indexWhere((u) => u.id == user.id);
+      if (index != -1) {
+        _users[index] = user;
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
+    }
+  }
+
+  Future<void> deleteUser(String userId) async {
+    try {
+      await _apiService.deleteUser(userId);
+      _users.removeWhere((u) => u.id == userId);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString();
+    }
+  }
+
+  // Business Logic Methods
+  List<User> searchUsers(String query) {
+    if (query.isEmpty) return _users;
+    return _users
+        .where((user) =>
+            user.fullName.toLowerCase().contains(query.toLowerCase()) ||
+            user.email.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+  }
+
+  List<User> filterUsersByAge(int minAge) {
+    return _users.where((user) => (user.age ?? 0) >= minAge).toList();
+  }
+
+  // Utility methods
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+}
+```
+
+3.3 Services Layer
+Create lib/services/api_service.dart:
+
+```dart
+import 'package:dio/dio.dart';
+import 'package:app_name/config/constants.dart';
+import 'package:app_name/models/user_model.dart';
+
+class ApiService {
+  late final Dio _dio;
+
+  ApiService() {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: AppConstants.apiBaseUrl,
+        connectTimeout: Duration(seconds: AppConstants.connectionTimeout),
+        receiveTimeout: Duration(seconds: AppConstants.receiveTimeout),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
+
+    // Add interceptors for logging and error handling
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        print('REQUEST: ${options.method} ${options.path}');
+        return handler.next(options);
+      },
+      onError: (error, handler) {
+        print('ERROR: ${error.message}');
+        return handler.next(error);
+      },
+    ));
+  }
+
+  // GET request
+  Future<List<User>> getUsers() async {
+    try {
+      final response = await _dio.get('/users');
+      final users = (response.data as List)
+          .map((item) => User.fromJson(item as Map<String, dynamic>))
+          .toList();
+      return users;
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    }
+  }
+
+  // POST request
+  Future<User> createUser(User user) async {
+    try {
+      final response = await _dio.post(
+        '/users',
+        data: user.toJson(),
+      );
+      return User.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    }
+  }
+
+  // PUT request
+  Future<User> updateUser(User user) async {
+    try {
+      final response = await _dio.put(
+        '/users/${user.id}',
+        data: user.toJson(),
+      );
+      return User.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    }
+  }
+
+  // DELETE request
+  Future<void> deleteUser(String userId) async {
+    try {
+      await _dio.delete('/users/$userId');
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    }
+  }
+
+  String _handleDioException(DioException error) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+        return 'Connection timeout. Please check your internet.';
+      case DioExceptionType.receiveTimeout:
+        return 'Server took too long to respond.';
+      case DioExceptionType.badResponse:
+        return 'Server error: ${error.response?.statusCode}';
+      case DioExceptionType.unknown:
+        return 'Network error occurred.';
+      default:
+        return 'An error occurred: ${error.message}';
+    }
+  }
+}
+```
+
+Create lib/services/local_storage_service.dart:
+
+```dart
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
+class LocalStorageService {
+  late SharedPreferences _prefs;
+
+  Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  // Simple data types
+  Future<void> setString(String key, String value) =>
+      _prefs.setString(key, value);
+
+  String? getString(String key) => _prefs.getString(key);
+
+  Future<void> setInt(String key, int value) => _prefs.setInt(key, value);
+
+  int? getInt(String key) => _prefs.getInt(key);
+
+  Future<void> setBool(String key, bool value) => _prefs.setBool(key, value);
+
+  bool? getBool(String key) => _prefs.getBool(key);
+
+  // JSON data (replaces localStorage with JSON serialization)
+  Future<void> setJson(String key, Map<String, dynamic> data) =>
+      _prefs.setString(key, jsonEncode(data));
+
+  Map<String, dynamic>? getJson(String key) {
+    final data = _prefs.getString(key);
+    if (data == null) return null;
+    return jsonDecode(data);
+  }
+
+  // Cleanup
+  Future<void> remove(String key) => _prefs.remove(key);
+
+  Future<void> clear() => _prefs.clear();
+}
+```
+
+Create lib/services/validation_service.dart:
+
+```dart
+class ValidationService {
+  static String? validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email is required';
+    }
+    const pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+    final regex = RegExp(pattern);
+    if (!regex.hasMatch(value)) {
+      return 'Enter a valid email';
+    }
+    return null;
+  }
+
+  static String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    return null;
+  }
+
+  static String? validateRequired(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'This field is required';
+    }
+    return null;
+  }
+
+  static String? validatePhoneNumber(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone number is required';
+    }
+    if (!RegExp(r'^\d{10,}$').hasMatch(value.replaceAll(RegExp(r'\D'), ''))) {
+      return 'Enter a valid phone number';
+    }
+    return null;
+  }
+
+  static String? validateMinLength(String? value, int length) {
+    if (value == null || value.isEmpty) {
+      return 'This field is required';
+    }
+    if (value.length < length) {
+      return 'Must be at least $length characters';
+    }
+    return null;
+  }
+}
+```
+
+---
+
+PHASE 4: UI IMPLEMENTATION (UI Phase)
+
+4.1 Reusable Widget Components (Equivalent to CSS Components)
+
+Create lib/widgets/common/app_button.dart:
+```dart
+import 'package:flutter/material.dart';
+
+class AppButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final bool isLoading;
+  final bool isEnabled;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final double? width;
+  final double? height;
+
+  const AppButton({
+    Key? key,
+    required this.label,
+    required this.onPressed,
+    this.isLoading = false,
+    this.isEnabled = true,
+    this.backgroundColor,
+    this.textColor,
+    this.width,
+    this.height,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: height ?? 48,
+      child: FilledButton(
+        onPressed: isEnabled && !isLoading ? onPressed : null,
+        style: FilledButton.styleFrom(
+          backgroundColor: backgroundColor,
+          disabledBackgroundColor: Colors.grey[300],
+        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(
+                label,
+                style: TextStyle(
+                  color: textColor ?? Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+      ),
+    );
+  }
+}
+```
+
+Create lib/widgets/common/app_card.dart:
+```dart
+import 'package:flutter/material.dart';
+
+class AppCard extends StatelessWidget {
+  final Widget child;
+  final Color? backgroundColor;
+  final double? elevation;
+  final EdgeInsets padding;
+  final BorderRadius? borderRadius;
+  final VoidCallback? onTap;
+
+  const AppCard({
+    Key? key,
+    required this.child,
+    this.backgroundColor,
+    this.elevation,
+    this.padding = const EdgeInsets.all(16),
+    this.borderRadius,
+    this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        color: backgroundColor,
+        elevation: elevation ?? 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: borderRadius ?? BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: padding,
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+```
+
+Create lib/widgets/common/app_input_field.dart:
+```dart
+import 'package:flutter/material.dart';
+
+class AppInputField extends StatefulWidget {
+  final String label;
+  final String? hintText;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final TextInputType keyboardType;
+  final bool obscureText;
+  final Widget? suffixIcon;
+  final Widget? prefixIcon;
+  final int? maxLines;
+  final int? minLines;
+  final int? maxLength;
+
+  const AppInputField({
+    Key? key,
+    required this.label,
+    this.hintText,
+    this.controller,
+    this.validator,
+    this.onChanged,
+    this.keyboardType = TextInputType.text,
+    this.obscureText = false,
+    this.suffixIcon,
+    this.prefixIcon,
+    this.maxLines = 1,
+    this.minLines,
+    this.maxLength,
+  }) : super(key: key);
+
+  @override
+  State<AppInputField> createState() => _AppInputFieldState();
+}
+
+class _AppInputFieldState extends State<AppInputField> {
+  late FocusNode _focusNode;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    setState(() {
+      _isFocused = _focusNode.hasFocus;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.label.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              widget.label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        TextFormField(
+          controller: widget.controller,
+          validator: widget.validator,
+          onChanged: widget.onChanged,
+          keyboardType: widget.keyboardType,
+          obscureText: widget.obscureText,
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
+          maxLength: widget.maxLength,
+          focusNode: _focusNode,
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            prefixIcon: widget.prefixIcon,
+            suffixIcon: widget.suffixIcon,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.blue, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+```
+
+4.2 Basic Screen Implementation
+
+Create lib/screens/home_screen.dart:
+```dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:app_name/providers/app_provider.dart';
+import 'package:app_name/widgets/common/app_button.dart';
+import 'package:app_name/widgets/common/app_card.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AppProvider>().fetchUsers();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: Consumer<AppProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            if (provider.errorMessage != null) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Error: ${provider.errorMessage}'),
+                    const SizedBox(height: 16),
+                    AppButton(
+                      label: 'Retry',
+                      onPressed: () => provider.fetchUsers(),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (provider.users.isEmpty) {
+              return const Center(
+                child: Text('No users found'),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: provider.users.length,
+              itemBuilder: (context, index) {
+                final user = provider.users[index];
+                return AppCard(
+                  onTap: () {
+                    // Navigate to details screen
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.fullName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(user.email),
+                      if (user.age != null) ...[
+                        const SizedBox(height: 8),
+                        Text('Age: ${user.age}'),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to add user screen
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+```
+
+4.3 Form Screen Implementation
+
+Create lib/screens/form_screen.dart:
+```dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:app_name/providers/app_provider.dart';
+import 'package:app_name/models/user_model.dart';
+import 'package:app_name/services/validation_service.dart';
+import 'package:app_name/widgets/common/app_button.dart';
+import 'package:app_name/widgets/common/app_input_field.dart';
+
+class FormScreen extends StatefulWidget {
+  final User? userToEdit;
+
+  const FormScreen({
+    Key? key,
+    this.userToEdit,
+  }) : super(key: key);
+
+  @override
+  State<FormScreen> createState() => _FormScreenState();
+}
+
+class _FormScreenState extends State<FormScreen> {
+  late GlobalKey<FormState> _formKey;
+  late TextEditingController _fullNameController;
+  late TextEditingController _emailController;
+  late TextEditingController _ageController;
+  late TextEditingController _bioController;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _formKey = GlobalKey<FormState>();
+    _fullNameController = TextEditingController(
+      text: widget.userToEdit?.fullName ?? '',
+    );
+    _emailController = TextEditingController(
+      text: widget.userToEdit?.email ?? '',
+    );
+    _ageController = TextEditingController(
+      text: widget.userToEdit?.age?.toString() ?? '',
+    );
+    _bioController = TextEditingController(
+      text: widget.userToEdit?.bio ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _ageController.dispose();
+    _bioController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final provider = context.read<AppProvider>();
+      final user = User(
+        id: widget.userToEdit?.id ?? DateTime.now().toString(),
+        fullName: _fullNameController.text,
+        email: _emailController.text,
+        age: int.tryParse(_ageController.text),
+        bio: _bioController.text.isEmpty ? null : _bioController.text,
+        createdAt: widget.userToEdit?.createdAt ?? DateTime.now(),
+      );
+
+      if (widget.userToEdit == null) {
+        await provider.createUser(user);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('User created successfully')),
+          );
+        }
+      } else {
+        await provider.updateUser(user);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('User updated successfully')),
+          );
+        }
+      }
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.userToEdit == null ? 'New User' : 'Edit User'),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                AppInputField(
+                  label: 'Full Name',
+                  hintText: 'Enter full name',
+                  controller: _fullNameController,
+                  validator: ValidationService.validateRequired,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 16),
+                AppInputField(
+                  label: 'Email',
+                  hintText: 'Enter email address',
+                  controller: _emailController,
+                  validator: ValidationService.validateEmail,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+                AppInputField(
+                  label: 'Age',
+                  hintText: 'Enter age (optional)',
+                  controller: _ageController,
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                AppInputField(
+                  label: 'Bio',
+                  hintText: 'Tell us about yourself',
+                  controller: _bioController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: 4,
+                ),
+                const SizedBox(height: 32),
+                AppButton(
+                  label: widget.userToEdit == null ? 'Create' : 'Update',
+                  onPressed: _submitForm,
+                  isLoading: _isSubmitting,
+                  width: double.infinity,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+4.4 Navigation Setup
+
+Create lib/config/routes.dart:
+```dart
+import 'package:go_router/go_router.dart';
+import 'package:app_name/screens/home_screen.dart';
+import 'package:app_name/screens/form_screen.dart';
+import 'package:app_name/models/user_model.dart';
+
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const HomeScreen(),
+      routes: [
+        GoRoute(
+          path: 'add-user',
+          builder: (context, state) => const FormScreen(),
+        ),
+        GoRoute(
+          path: 'edit-user/:id',
+          builder: (context, state) {
+            final user = state.extra as User?;
+            return FormScreen(userToEdit: user);
+          },
+        ),
+      ],
+    ),
+  ],
+  errorBuilder: (context, state) => Scaffold(
+    body: Center(
+      child: Text('Page not found: ${state.location}'),
+    ),
+  ),
+);
+```
+
+4.5 Main App Setup
+
+Create/Update lib/main.dart:
+```dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:app_name/config/routes.dart';
+import 'package:app_name/config/theme.dart';
+import 'package:app_name/providers/app_provider.dart';
+import 'package:app_name/services/local_storage_service.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize local storage
+  await LocalStorageService().init();
+  
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppProvider()),
+      ],
+      child: MaterialApp.router(
+        title: 'App Name',
+        theme: AppTheme.lightTheme.copyWith(
+          textTheme: GoogleFonts.interTextTheme(),
+        ),
+        routerConfig: router,
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+  }
+}
+```
+
+---
+
+PHASE 5: INTEGRATION & VERIFICATION (Integration Phase)
+
+5.1 Navigation Integration
+- Test all navigation flows match the original HTML/JavaScript routing
+- Ensure back navigation works correctly
+- Verify deeplinks are handled properly
+- Test browser-like history behavior
+
+5.2 State Management Verification
+- Confirm data changes in one screen reflect in other screens
+- Test data persistence across app lifecycle
+- Verify error states are handled gracefully
+- Confirm loading states display correctly
+
+5.3 Form Validation Testing
+- Test all form fields with invalid/valid inputs
+- Verify validation messages match original HTML form behavior
+- Test form submission with network errors
+- Confirm form data persists during navigation
+
+5.4 API Integration Testing
+- Mock API responses during development
+- Test error handling for network failures
+- Verify request/response data matches original JavaScript app
+- Test timeout handling
+
+5.5 Performance & Polish
+- Add empty states for lists and data views
+- Implement error dialogs and snackbars
+- Add loading skeletons for better UX
+- Test app responsiveness on various screen sizes
+- Add pull-to-refresh functionality where appropriate
+- Implement proper memory management
+
+5.6 Testing Strategy
+```dart
+// Example unit test for validation
+import 'package:flutter_test/flutter_test.dart';
+import 'package:app_name/services/validation_service.dart';
+
+void main() {
+  group('ValidationService', () {
+    test('validateEmail should accept valid emails', () {
+      expect(
+        ValidationService.validateEmail('test@example.com'),
+        isNull,
+      );
+    });
+
+    test('validateEmail should reject invalid emails', () {
+      expect(
+        ValidationService.validateEmail('invalid-email'),
+        isNotNull,
+      );
+    });
+
+    test('validateRequired should reject empty strings', () {
+      expect(
+        ValidationService.validateRequired(''),
+        isNotNull,
+      );
+    });
+  });
+}
+```
+
+---
+
+ADDITIONAL TIPS FOR AI AGENTS
+
+1. **Preserve Functionality First**
+   - Ensure all JavaScript functions are converted to Dart equivalently
+   - Test all features work before optimizing
+   - Match business logic exactly before refactoring
+
+2. **Consistency in Naming**
+   - Use camelCase for variables and methods (Dart convention)
+   - Keep data model names similar to JavaScript counterparts
+   - Use descriptive function names that reflect their purpose
+
+3. **Responsive Design Considerations**
+   - Use MediaQuery for responsive layouts
+   - Test on multiple device sizes (small phones, tablets, tablets in landscape)
+   - Use Flexible and Expanded widgets for responsive design
+   - Consider landscape/portrait orientation changes
+
+4. **Localization & i18n**
+   - Extract all hardcoded strings to a localization file
+   - Use intl package for date/number formatting
+   - Plan for multi-language support from the start
+   - Use Localizations widget for language switching
+
+5. **Error Handling Strategy**
+   - Create custom exception classes for different error types
+   - Provide user-friendly error messages
+   - Log errors for debugging
+   - Implement retry logic for network failures
+
+6. **Performance Optimization**
+   - Use const constructors wherever possible
+   - Implement lazy loading for large lists (ListView.builder)
+   - Cache network responses locally
+   - Profile app with Flutter DevTools
+
+7. **Code Organization**
+   - Keep files focused and single-responsibility
+   - Use barrel files (index.dart) for cleaner imports
+   - Document complex logic with comments
+   - Follow Flutter/Dart style guidelines
+
+8. **Testing Best Practices**
+   - Write unit tests for business logic
+   - Create widget tests for custom components
+   - Test state management thoroughly
+   - Mock external dependencies (APIs, storage)
+
+9. **Dependency Management**
+   - Keep dependencies minimal and up-to-date
+   - Prefer well-maintained community packages
+   - Lock dependency versions in pubspec.lock
+   - Review breaking changes in updates
+
+10. **Platform-Specific Considerations**
+    - Handle iOS and Android differences (safe area, status bar)
+    - Test on both platforms during development
+    - Use platform channels for native functionality
+    - Consider platform design guidelines (Material vs Cupertino)
+
+---
+
+COMMON MAPPING REFERENCE
+
+| HTML/CSS/JS | Flutter Equivalent |
+|---|---|
+| `<div>` | `Container` or `Column`/`Row` |
+| `<button>` | `FilledButton`, `OutlinedButton`, `TextButton` |
+| `<input>` | `TextField` or `TextFormField` |
+| `<img>` | `Image.network`, `Image.asset` |
+| `<span>` | `Text` |
+| `<form>` | `Form` + `FormState` |
+| CSS Grid | `GridView` or `Column`/`Row` |
+| CSS Flexbox | `Row`/`Column` |
+| Hover effects | `onEnter`, `onExit` in `MouseRegion` |
+| Click events | `onPressed`, `onTap` callbacks |
+| localStorage | `SharedPreferences` |
+| fetch API | `Dio` or `http` package |
+| console.log | `print()` or `debugPrint()` |
+| setTimeout | `Future.delayed()` |
+| setInterval | `Timer` or `Timer.periodic()` |
+| Event listeners | Callback functions in widgets |
+| DOM manipulation | Widget tree updates via `setState` or Provider |
+| CSS animations | `AnimationController` + `Tween` |
+| Modal dialog | `showDialog()` |
+| Toast/Alert | `SnackBar` or `AlertDialog` |
+| Routing | `Navigator` or `go_router` |
+
+---
+
+This comprehensive guide provides AI agents with a systematic approach to converting static HTML/CSS/JS mobile web applications into production-ready Flutter applications while maintaining functionality, performance, and user experience parity.
