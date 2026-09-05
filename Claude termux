@@ -1,0 +1,19 @@
+## version compatiple to run on termux
+
+npm install -g @anthropic-ai/claude-code@2.1.112
+  
+in bashrc
+## Base URL for OpenRouter API Endpoint
+export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
+
+## Model Routing Overrides (Force Claude Code to use your choosen model"
+export ANTHROPIC_MODEL="dots-studio/dots-3-note-preview>
+
+
+
+## Turn off Gateway Discovery
+export CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=0
+
+
+## Explicitly UNSET conflicting variables
+unset ANTHROPIC_AUTH_TOKEN
