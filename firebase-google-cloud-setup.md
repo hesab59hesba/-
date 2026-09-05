@@ -85,6 +85,31 @@ App Check (roadmap), not key restrictions.
 
 ---
 
+## Part G — Google sign-in: browser flow failed, native SDK fixed it
+
+**Symptom (dev build, expo-auth-session browser flow):** tapping Continue with
+Google opened the browser and died with bare `Error 400: invalid_request`
+(Arabic UI included). No useful error detail.
+
+**Ruled out with evidence** (request diagnostics logged from the app):
+package `com.modather.individualmarketplace` ✓, standard native redirect
+`com.modather.individualmarketplace:/oauthredirect` ✓, `responseType: code` ✓,
+correct Android + Web client IDs ✓, clients exist ✓, branding/audience
+(In Production) ✓.
+
+**Root cause:** the browser-redirect OAuth handshake itself (SHA/cert matching
+at the redirect step). Console config was correct throughout.
+
+**Fix that worked:** `@react-native-google-signin/google-signin` (native SDK,
+`lib/google-native.ts`, `GoogleSignInButton` tries native first, session
+fallback second). Native one-tap sheet → ID token → `signInWithCredential`.
+Requires a dev build (native module). Verified: `hasIdToken: true` →
+credential ok → session + push token, first try.
+
+**Rule of thumb:** on Expo, prefer the native Google SDK on dev builds; keep
+expo-auth-session only as a fallback. Never debug a bare `invalid_request`
+past config verification — switch transports instead.
+
 ## Appendix — values record
 
 ```text
