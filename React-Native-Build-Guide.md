@@ -388,3 +388,103 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 # Or copy to device
 cp app/build/outputs/apk/debug/app-debug.apk /sdcard/Download/
 ```
+
+---
+
+# Part 3: Expo Workflow (Recommended for Most Projects)
+
+Expo is a framework built on top of React Native that simplifies development.
+
+## Why Expo?
+
+| Feature | React Native CLI | Expo |
+|---------|------------------|------|
+| Setup | Manual configuration | Automatic |
+| Testing | Build APK every time | Expo Go (instant) |
+| Native modules | Manual setup | Managed or custom |
+| Build process | Gradle directly | EAS Build or expo run |
+| Learning curve | Steeper | Easier |
+
+## Expo Setup (Already Done)
+
+```bash
+# Expo CLI is installed
+expo --version  # 57.0.21
+
+# Expo project created at:
+/root/Desktop/projects/ExpoTest
+```
+
+## Using Expo
+
+### 1. Instant Testing (No Build Needed!)
+
+```bash
+cd /root/Desktop/projects/ExpoTest
+expo start
+```
+
+Then:
+1. Install "Expo Go" app from Play Store on your phone
+2. Scan the QR code shown in terminal
+3. App runs instantly on your phone!
+4. Hot reload: Save files, see changes immediately
+
+### 2. Build APK with Expo
+
+```bash
+# Local build
+npx expo run:android
+
+# Or use EAS Build (cloud - recommended)
+npx eas build --platform android
+```
+
+### 3. Create New Expo Project
+
+```bash
+npx create-expo-app@latest MyExpoApp --template blank-typescript
+cd MyExpoApp
+expo start
+```
+
+## Expo Requirements
+
+Same as React Native CLI:
+- ✅ Java JDK 17+
+- ✅ Android SDK
+- ✅ Node.js + npm
+- ✅ Gradle (downloaded automatically)
+
+Our environment has everything!
+
+## Expo vs React Native CLI
+
+Use **Expo** when:
+- Building most mobile apps
+- Want fast development cycle
+- Don't need custom native code
+- Prefer simpler workflow
+
+Use **React Native CLI** when:
+- Need full native control
+- Using custom native modules
+- Performance-critical apps
+- Already have native codebase
+
+## Quick Commands
+
+```bash
+# Start Expo development server
+expo start
+
+# Build Android APK locally
+npx expo run:android
+
+# Build with EAS (cloud)
+npx eas build --platform android
+
+# Create new Expo project
+npx create-expo-app MyProject --template blank-typescript
+```
+
